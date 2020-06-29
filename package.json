@@ -14,5 +14,8 @@
   "devDependencies": {
     "electron": "^9.0.5",
     "electron-builder": "^22.7.0"
+  },
+  "dependencies": {
+    "tesseract.js": "^2.1.1"
   }
 }
