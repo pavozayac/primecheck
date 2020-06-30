@@ -1,8 +1,8 @@
-const { app, BrowserWindow, screen, globalShortcut } = require('electron')
-
+const { app, BrowserWindow, screen, globalShortcut, ipcMain } = require('electron')
 
 function createWindow () {
   const {width, height} = screen.getPrimaryDisplay().workAreaSize
+  let shown = false
   // Create the browser window.
   let win = new BrowserWindow({
     width: 800,
@@ -14,22 +14,42 @@ function createWindow () {
     alwaysOnTop: true,
     thickFrame: false,
     x: 0,
-    y: height/2-300,
+    y: height/2,
     show: false,
-    shown: false
+    transparent: true
+  })
+  
+  let selection = new BrowserWindow({
+    webPreferences:{
+      nodeIntegration: true
+    },
+    parent: win,
+    show: false,
+    fullscreen: true,
+    opacity: 1,
+    backgroundColor: '#ffffff'
   })
 
-  // and load the index.html of the app.
-  win.loadFile('index.html')
   globalShortcut.register('Ctrl+Alt+`', ()=>{
-    if (win.shown){
+    if (shown){
       win.hide()
-      win.shown = false
+      selection.hide()
+      shown = false
     } else {
       win.show()
-      win.shown = true
+      selection.show()
+      shown = true
     }
+  })
+
+  win.loadFile('index.html')
+  selection.loadFile('selection.html')
+
+  ipcMain.on('bruvva', (ev, arg)=>{
+    console.log(`${ev}, ${arg}`)
   })
 }
 
 app.whenReady().then(createWindow)
+
+
