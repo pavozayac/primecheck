@@ -1,4 +1,8 @@
-const {ipcRenderer} = require('electron')
+const {ipcRenderer, desktopCapturer} = require('electron')
+const fs = require('fs')
+const os = require('os')
+const path = require('path')
+const { toNamespacedPath } = require('path')
 
 canvas = document.getElementById('mycanvas')
 context = canvas.getContext('2d')
@@ -26,7 +30,20 @@ canvas.addEventListener('mousedown' , ev=>{
         let y2 = ev2.screenY
         ipcRenderer.send('bruvva', [x, y, x2, y2])
         context.clearRect(0, 0, canvas.width, canvas.height)
-    })
-    
-    
+        desktopCapturer.getSources({ types: ['window', 'screen'], thumbnailSize:{width: 1920, height: 1080} }).then(sources=>{
+            sources.forEach((source) => {
+              const sourceName = source.name.toLowerCase()
+              if (sourceName === 'entire screen' || sourceName === 'screen 1') {
+                const screenshotPath = path.join(os.tmpdir(), 'screenshot.png')
+        
+                fs.writeFile(screenshotPath, source.thumbnail.toPNG(), (error) => {
+                  if (error) return console.log(error)
+                  shell.openExternal(`file://${screenshotPath}`)
+                })
+              }
+            })
+          }).catch(err=>{
+            console.log(err)
+          })
+        })    
 })

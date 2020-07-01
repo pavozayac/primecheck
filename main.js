@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen, globalShortcut, ipcMain } = require('electron')
+const { app, BrowserWindow, screen, globalShortcut, ipcMain, shell, desktopCapturer } = require('electron')
 
 function createWindow () {
   const {width, height} = screen.getPrimaryDisplay().workAreaSize
@@ -49,8 +49,11 @@ function createWindow () {
 
   ipcMain.on('bruvva', (ev, arg)=>{
     console.log(`${ev}, ${arg}`)
-  })
+  })  
 }
+
+
+
 
 app.whenReady().then(createWindow)
 
