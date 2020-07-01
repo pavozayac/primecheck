@@ -5,8 +5,8 @@ function createWindow () {
   let shown = false
   // Create the browser window.
   let win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 400,
+    height: 300,
     webPreferences: {
       nodeIntegration: true
     },
@@ -16,7 +16,7 @@ function createWindow () {
     x: 0,
     y: height/2,
     show: false,
-    transparent: true
+    transparent: false
   })
   
   let selection = new BrowserWindow({
@@ -26,8 +26,10 @@ function createWindow () {
     parent: win,
     show: false,
     fullscreen: true,
-    opacity: 1,
-    backgroundColor: '#ffffff'
+    transparent: true,
+    frame: false,
+    resizable: false,
+    alwaysOnTop: true
   })
 
   globalShortcut.register('Ctrl+Alt+`', ()=>{
