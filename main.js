@@ -1,4 +1,5 @@
-const { app, BrowserWindow, screen, globalShortcut, ipcMain, shell, desktopCapturer } = require('electron')
+const { app, BrowserWindow, screen, globalShortcut, ipcMain } = require('electron')
+const netapi = require('./netapi')
 
 function createWindow () {
   const {width, height} = screen.getPrimaryDisplay().workAreaSize
@@ -47,13 +48,17 @@ function createWindow () {
   win.loadFile('index.html')
   selection.loadFile('selection.html')
 
-  ipcMain.on('bruvva', (ev, arg)=>{
-    console.log(`${ev}, ${arg}`)
+  ipcMain.on('errors', (ev, arg)=>{
+    console.log(`Error: ${arg}`)
   })  
+
+  ipcMain.on('logging', (ev, arg)=>{
+    console.log(`Log: ${arg}`)
+    console.log(netapi.readAll())
+  })  
+
+  //getAll()
 }
-
-
-
 
 app.whenReady().then(createWindow)
 

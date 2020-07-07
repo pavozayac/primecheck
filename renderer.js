@@ -1,49 +1,58 @@
+'use strict';
+
 const {ipcRenderer, desktopCapturer} = require('electron')
-const fs = require('fs')
-const os = require('os')
-const path = require('path')
-const { toNamespacedPath } = require('path')
+const Jimp = require('jimp')
+const tess = require('tesseract.js')
 
-canvas = document.getElementById('mycanvas')
-context = canvas.getContext('2d')
-context.fillStyle = 'gold'
-context.strokeStyle = 'gold'
-context.lineWidth = 2
-canvas.style.position = 'fixed'
-moving = false
+let config
+require('./config').getConfig((err,val)=>{
+  if (err ) return ipcRenderer.send('errors', err)
+  config = val
+})
 
-canvas.addEventListener('mousedown' , ev=>{    
-    let x = ev.clientX
-    let y = ev.clientY
-    moving = true
+const worker = tess.createWorker()
 
-    canvas.addEventListener('mousemove', ev1=>{
-        if(moving){
-            context.clearRect(0, 0, canvas.width, canvas.height)
-            context.strokeRect(x, y, ev1.screenX-x, ev1.screenY-y)
-        }
+document.addEventListener('mousedown' , ev=>{   
+
+  desktopCapturer.getSources({ types: ['window', 'screen'], thumbnailSize:{width: 1920, height: 1080} }).then(sources=>{
+    sources.forEach((source) => {
+      const sourceName = source.name.toLowerCase()
+      if (sourceName === 'entire screen' || sourceName === 'screen 1') {
+        let screen = source.thumbnail.toPNG()
+
+        config.rectangles.res1080.four.forEach((rect, ind)=>{
+          Jimp.read(screen, (err, val)=>{           
+            if (err) ipcRenderer.send('errors', err);
+            
+            val.crop(rect.initial.x, rect.initial.y, rect.final.x-rect.initial.x, rect.final.y-rect.initial.y).resize(rect.final.x-rect.initial.x, rect.final.y-rect.initial.y).contrast(1).greyscale().write(`./img${ind}.png`, (err)=>{
+              if (err) ipcRenderer.send('errors', err);              
+            }) 
+          })
+        })
+        rec(0, config.rectangles.res1080.four.length) 
+      }
+    })
+  }).catch(err=>{
+    ipcRenderer.send('errors', err)
+  })
+
+  
+})
+
+
+async function rec(start, lim){
+  if (start < lim){
+    await worker.load();
+    await worker.loadLanguage('eng');
+    await worker.initialize('eng');
+    await worker.setParameters({
+      tessedit_char_whitelist: 'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm ',
+      preserve_interword_spaces: '1'
     })
 
-    canvas.addEventListener('mouseup', ev2=>{
-        moving = false
-        let x2 = ev2.screenX
-        let y2 = ev2.screenY
-        ipcRenderer.send('bruvva', [x, y, x2, y2])
-        context.clearRect(0, 0, canvas.width, canvas.height)
-        desktopCapturer.getSources({ types: ['window', 'screen'], thumbnailSize:{width: 1920, height: 1080} }).then(sources=>{
-            sources.forEach((source) => {
-              const sourceName = source.name.toLowerCase()
-              if (sourceName === 'entire screen' || sourceName === 'screen 1') {
-                const screenshotPath = path.join(os.tmpdir(), 'screenshot.png')
-        
-                fs.writeFile(screenshotPath, source.thumbnail.toPNG(), (error) => {
-                  if (error) return console.log(error)
-                  shell.openExternal(`file://${screenshotPath}`)
-                })
-              }
-            })
-          }).catch(err=>{
-            console.log(err)
-          })
-        })    
-})
+    worker.recognize(`./img${start}.png`).then(value=>{
+      ipcRenderer.send('logging', value.data.text.toLowerCase())
+      rec(start+1, lim)  
+    })
+  }
+}
