@@ -54,7 +54,11 @@ function createWindow () {
 
   ipcMain.on('logging', (ev, arg)=>{
     console.log(`Log: ${arg}`)
-    console.log(netapi.readAll())
+    netapi.getOrders('paris prime lower limb').then(list=>{
+      console.log(list)
+    }).catch(err=>{
+      console.log(err)
+    })
   })  
 
   //getAll()
