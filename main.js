@@ -1,5 +1,6 @@
 const { app, BrowserWindow, screen, globalShortcut, ipcMain } = require('electron')
 const netapi = require('./netapi')
+require('v8-compile-cache')
 
 function createWindow () {
   const {width, height} = screen.getPrimaryDisplay().workAreaSize
@@ -52,9 +53,8 @@ function createWindow () {
     console.log(`Error: ${arg}`)
   })  
 
-  ipcMain.on('logging', (ev, arg)=>{
-    console.log(`Log: ${arg}`)
-    netapi.getOrders('paris prime lower limb').then(list=>{
+  ipcMain.on('orders', (ev, arg)=>{
+    netapi.getOrders(arg).then(list=>{
       console.log(list)
     }).catch(err=>{
       console.log(err)

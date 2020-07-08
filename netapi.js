@@ -1,7 +1,6 @@
 const axios = require('axios')
 const fs = require('fs')
-const Fuse = require('fuse.js');
-const { get } = require('http');
+const Fuse = require('fuse.js')
 
 function update(){
     let list = [];
@@ -28,21 +27,30 @@ function getOne(searchStr){
 }
 
 function getOrders(itemName){
-    let {item: {url_name}} = getOne(itemName)
-    let list = []
-    return new Promise((resolve, reject)=>{
-        axios.get(`https://api.warframe.market/v1/items/${url_name}/orders?include=item`).then(res=>{
+    let {item} = getOne(itemName)
+    if (item === undefined || item.url_name === undefined){
+        return new Promise((resolve, reject)=>{
+            reject('Could not scan item name.')
+        })
+    }
+    let list = {
+        item_name: itemName,
+        url_name: item.url_name,
+        orders: []
+    }
+    return new Promise((resolve, reject)=>{        
+        axios.get(`https://api.warframe.market/v1/items/${item.url_name}/orders?include=item`).then(res=>{
             res.data.payload.orders.forEach(order=>{
                 if (order.user.status == 'ingame' && order.order_type == 'sell' && order.visible == true){
                     //console.log(order.user.ingame_name + ': ' + order.platinum)
-                    list.push({
+                    list.orders.push({
                         username: order.user.ingame_name,
                         price: order.platinum,
                         quantity: order.quantity
                     })
                 }
             })
-            list.sort((a, b)=>{
+            list.orders.sort((a, b)=>{
                 return a.price - b.price    
             })        //console.log(list)   
             return resolve(list)

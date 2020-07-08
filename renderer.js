@@ -51,8 +51,8 @@ async function rec(start, lim){
     })
 
     worker.recognize(`./img${start}.png`).then(value=>{
-      ipcRenderer.send('logging', value.data.text.toLowerCase())
-      rec(start+1, lim)  
+      ipcRenderer.send('orders', value.data.text.toLowerCase())
+      rec(start+1, lim)
     })
   }
 }
