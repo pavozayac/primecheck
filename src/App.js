@@ -1,5 +1,5 @@
 import React from 'react';
-import './App.scss';
+import './css/App.css';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import 'axios'
@@ -50,8 +50,12 @@ class App extends React.Component {
     }
   }
 
-  searchReplace = (str) => {
-    this.search.value = str
+  chooseSuggetion = (index) => {
+    this.setState({
+      query: this.state.suggestions[index].item.item_name
+    }, ()=>{
+      this.submit()
+    })
   }
 
   componentDidMount(){
@@ -95,8 +99,8 @@ class App extends React.Component {
               </div>
 
               <div className="list">
-                {this.state.suggestions.map(value=>(
-                  <div key={value.item.item_name} className="list-item capitalLetters" onClick={this.submit}>{value.item.item_name}</div>
+                {this.state.suggestions.map((value, index)=>(
+                  <div key={index} className="list-item capitalLetters" onClick={()=>{this.chooseSuggetion(index)}}>{value.item.item_name}</div>
                 ))}
               </div>
               
@@ -108,7 +112,7 @@ class App extends React.Component {
               {this.state.items.map(value=>(
                 <div className="box">
                   <div className="columns is-mobile is-vcentered">
-                    <div className="column is-4-desktop is-4-mobile is-4-tablet is-4-fullhd is-4-widescreen is-narrow capitalLetters" key={value.item_name}><p className="text-overflow"> {value.item_name}</p></div>
+                    <div className="column is-4-desktop is-4-mobile is-4-tablet is-4-fullhd is-4-widescreen is-narrow capitalLetters" key={value.item_name}><abbr title={value.item_name}><p className="text-overflow">{value.item_name}</p></abbr></div>
                     {value.orders.map(order=>(
                       <div className="column is-narrow is-1-desktop is-1-mobile is-1-tablet is-1-fullhd is-1-widescreen has-text-centered" key={order.username}>{order.price}</div>
                     ))}                  

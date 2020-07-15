@@ -3,24 +3,24 @@ const netapi = require('./netapi')
 require('v8-compile-cache')
 
 function createWindow () {
-  const {width, height} = screen.getPrimaryDisplay().workAreaSize
+  const {sWidth, sHeight} = screen.getPrimaryDisplay().workAreaSize
   // Create the browser window.
   let win = new BrowserWindow({
     width: 400,
     height: 400,
     resizable: true,
-    movable: true,
+    movable: false,
     webPreferences: {
       nodeIntegration: true
     },
     frame: false,
     alwaysOnTop: true,
     thickFrame: false,
-    x: 0,
-    y: height/2,
     show: false,
     transparent: true,
-    skipTaskbar: true
+    skipTaskbar: true,
+    center: false,
+
     
     //focusable: false
   })
@@ -100,6 +100,8 @@ function createWindow () {
     console.log(arg)
     win.webContents.send('searched', netapi.getMany(arg)) 
   })
+
+  win.setPosition(0, 0, false)
 
   //getAll()
 }

@@ -74,11 +74,21 @@ App{
     background-color: $background;
 }
 
+.list-item{
+    border-color: $background;
+}
+
 .list-item:hover{
     background-color: grey;
+    border-color: $background;
     cursor: pointer;
 }
 
 .capitalLetters{
     text-transform: capitalize;
+}
+
+abbr {
+    text-decoration: none !important;
+
 }
