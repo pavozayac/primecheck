@@ -1,5 +1,3 @@
-'use strict';
-
 const {ipcRenderer, desktopCapturer} = require('electron')
 const Jimp = require('jimp')
 const tess = require('tesseract.js')
@@ -12,7 +10,7 @@ require('./config').getConfig((err,val)=>{
 
 const worker = tess.createWorker()
 
-document.addEventListener('mousedown' , ev=>{   
+ipcRenderer.on('scan' , ()=>{   
 
   desktopCapturer.getSources({ types: ['window', 'screen'], thumbnailSize:{width: 1920, height: 1080} }).then(sources=>{
     sources.forEach((source) => {

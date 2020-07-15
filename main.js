@@ -4,11 +4,12 @@ require('v8-compile-cache')
 
 function createWindow () {
   const {width, height} = screen.getPrimaryDisplay().workAreaSize
-  let shown = false
   // Create the browser window.
   let win = new BrowserWindow({
     width: 400,
-    height: 300,
+    height: 400,
+    resizable: true,
+    movable: true,
     webPreferences: {
       nodeIntegration: true
     },
@@ -18,10 +19,16 @@ function createWindow () {
     x: 0,
     y: height/2,
     show: false,
-    transparent: false
+    transparent: true,
+    skipTaskbar: true
+    
+    //focusable: false
   })
   
   let selection = new BrowserWindow({
+    focusable: false,
+    width: 0,
+    height: 0,
     webPreferences:{
       nodeIntegration: true
     },
@@ -31,22 +38,49 @@ function createWindow () {
     transparent: true,
     frame: false,
     resizable: false,
-    alwaysOnTop: true
+    alwaysOnTop: true,
+    skipTaskbar: true
   })
 
+  
   globalShortcut.register('Ctrl+Alt+`', ()=>{
-    if (shown){
+    if (win.isVisible() && win.isFocused()){
       win.hide()
-      selection.hide()
-      shown = false
     } else {
       win.show()
-      selection.show()
-      shown = true
     }
   })
+  
 
-  win.loadFile('index.html')
+  win.on('show', ()=>{
+    globalShortcut.register('4', ()=>{
+      selection.webContents.send('scan', 'any')
+      win.webContents.send('bruh', 'one')
+    })    
+  })
+
+  win.on('hide', ()=>{
+    globalShortcut.unregister('4', ()=>{
+      selection.webContents.send('scan', 'any')
+      win.webContents.send('bruh', 'one')
+    })    
+  })
+  
+
+  /*globalShortcut.register('5', ()=>{
+    netapi.getOrders('acid').then(res=>{
+      win.webContents.send('items', res)
+    })
+
+  })*/
+
+  /*Mousetrap.bind('ctrl+alt+`', ()=>{
+    netapi.getOrders('acid').then(res=>{
+      win.webContents.send('items', res)
+    })
+  }, 'keyup')*/
+
+  win.loadURL('http://localhost:3000')
   selection.loadFile('selection.html')
 
   ipcMain.on('errors', (ev, arg)=>{
@@ -56,10 +90,16 @@ function createWindow () {
   ipcMain.on('orders', (ev, arg)=>{
     netapi.getOrders(arg).then(list=>{
       console.log(list)
+      win.webContents.send('items', list)
     }).catch(err=>{
       console.log(err)
     })
-  })  
+  })
+
+  ipcMain.on('getSearch', (ev, arg)=>{
+    console.log(arg)
+    win.webContents.send('searched', netapi.getMany(arg)) 
+  })
 
   //getAll()
 }

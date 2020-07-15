@@ -26,20 +26,28 @@ function getOne(searchStr){
     return fuse.search(searchStr)[0]
 }
 
+function getMany(searchStr){
+    const options = {
+        includeScore: true,
+        keys: ['item_name']
+    }
+    const fuse = new Fuse(readAll(), options)
+    return fuse.search(searchStr).slice(0,5)
+}
+
 function getOrders(itemName){
-    let {item} = getOne(itemName)
-    if (item === undefined || item.url_name === undefined){
-        return new Promise((resolve, reject)=>{
-            reject('Could not scan item name.')
-        })
-    }
-    let list = {
-        item_name: itemName,
-        url_name: item.url_name,
-        orders: []
-    }
+    let searched = getOne(itemName)
+    
     return new Promise((resolve, reject)=>{        
-        axios.get(`https://api.warframe.market/v1/items/${item.url_name}/orders?include=item`).then(res=>{
+        if (searched === 'undefined' || searched.item === 'undefined' || searched.item.url_name === 'undefined'){
+            return reject('Could not scan item name.')
+        }
+        let list = {
+            item_name: searched.item.item_name,
+            url_name: searched.item.url_name,
+            orders: []
+        }
+        axios.get(`https://api.warframe.market/v1/items/${searched.item.url_name}/orders?include=item`).then(res=>{
             res.data.payload.orders.forEach(order=>{
                 if (order.user.status == 'ingame' && order.order_type == 'sell' && order.visible == true){
                     //console.log(order.user.ingame_name + ': ' + order.platinum)
@@ -66,5 +74,6 @@ module.exports = {
     update: update,
     readAll: readAll,
     getOne: getOne,
+    getMany: getMany,
     getOrders: getOrders
 }

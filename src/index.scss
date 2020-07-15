@@ -1,0 +1,84 @@
+@charset "utf-8";
+
+$background: #282c34;
+$box-padding: 0.75rem;
+$box-radius: 6px;
+$column-gap: 0.3rem;
+$text: white;
+$input-background-color: $background;
+$input-color: white;
+$input-border-color: grey;
+$input-focus-border-color: aqua;
+
+$box-background-color: $background;
+
+@import "../node_modules/bulma/bulma.sass";
+
+html{
+    background-color: transparent;
+    backface-visibility: hidden;
+}
+
+.box-rounded{
+    border-radius: 6px;
+}
+
+body {
+    margin: vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    background: transparent;
+    border-radius: 1rem;
+  }
+
+#root{
+    border-radius: 1rem;
+}
+
+$box-padding: 0.7rem;
+  
+::-webkit-scrollbar{
+    display: none;
+}
+  
+code {
+font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.text-overflow{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.section{
+    background-color: transparent;
+}
+
+.columns{
+    background-color: transparent;
+}
+
+App{
+    background-color: transparent;
+}
+
+.list{
+    background-color: $background;
+}
+
+.list-item:hover{
+    background-color: grey;
+    cursor: pointer;
+}
+
+.capitalLetters{
+    text-transform: capitalize;
+}
