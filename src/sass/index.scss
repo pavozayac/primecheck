@@ -10,9 +10,11 @@ $input-color: white;
 $input-border-color: grey;
 $input-focus-border-color: aqua;
 
+$section-padding: 1rem;
+
 $box-background-color: $background;
 
-@import "../node_modules/bulma/bulma.sass";
+@import "../..//node_modules/bulma/bulma.sass";
 
 html{
     background-color: transparent;
@@ -24,7 +26,6 @@ html{
 }
 
 body {
-    margin: vh;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
       'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
       sans-serif;
@@ -35,6 +36,8 @@ body {
     background-color: transparent;
     background: transparent;
     border-radius: 1rem;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
 #root{
@@ -90,5 +93,15 @@ App{
 
 abbr {
     text-decoration: none !important;
+}
 
+.scrollIndicator{
+    font-size: 2rem;
+    color: aqua;
+    opacity: 0.5;
+    position: fixed;
+    top: 350px;
+    left: 180px;
+    width: 100%;
+    text-align: center;
 }

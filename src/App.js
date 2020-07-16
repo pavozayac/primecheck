@@ -1,7 +1,7 @@
 import React from 'react';
 import './css/App.css';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faSearch, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import 'axios'
 
 const electron = window.require('electron')
@@ -23,7 +23,8 @@ class App extends React.Component {
         ]}
       ],
       query: '',
-      suggestions: []
+      suggestions: [],
+      scrollIndicator: false
     }
   }
   
@@ -58,6 +59,22 @@ class App extends React.Component {
     })
   }
 
+  scrollIt = (ev) => {
+    if ((window.scrollY + window.innerHeight) <= document.body.offsetHeight-2){
+      this.setState({
+        scrollIndicator: true
+      })
+      //debugging
+      //electron.ipcRenderer.send('errors', `true, ${window.scrollY + window.innerHeight}, ${document.body.offsetHeight}`)
+    } else {
+      this.setState({
+        scrollIndicator: false
+      })
+      //debugging
+      //electron.ipcRenderer.send('errors', `false, ${window.scrollY + window.innerHeight}, ${document.body.offsetHeight}`)
+    }
+  }
+
   componentDidMount(){
     electron.ipcRenderer.on('bruh', (ev, arg)=>{
       this.setState({
@@ -74,6 +91,7 @@ class App extends React.Component {
         msg: this.state.msg,
         items: items
       })
+      this.scrollIt()
     })
 
     electron.ipcRenderer.on('searched', (ev,arg)=>{
@@ -81,7 +99,11 @@ class App extends React.Component {
         suggestions: arg
       })
     })
+
+    window.onscroll = this.scrollIt   
   }
+
+
 
   render(){
     return (
@@ -121,6 +143,9 @@ class App extends React.Component {
               ))}         
               
           </div>       
+          {this.state.scrollIndicator &&
+            <FontAwesomeIcon className="scrollIndicator" icon={ faChevronDown }/>
+          }
       </div>
     );
   }
