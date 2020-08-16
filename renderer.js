@@ -1,6 +1,6 @@
 const {ipcRenderer, desktopCapturer} = require('electron')
 const Jimp = require('jimp')
-const tess = require('tesseract.js')
+//const tess = require('tesseract.js')
 
 let config
 require('./config').getConfig((err,val)=>{
@@ -8,7 +8,7 @@ require('./config').getConfig((err,val)=>{
   config = val
 })
 
-const worker = tess.createWorker()
+
 
 ipcRenderer.on('scan' , ()=>{   
 
@@ -18,39 +18,36 @@ ipcRenderer.on('scan' , ()=>{
       if (sourceName === 'entire screen' || sourceName === 'screen 1') {
         let screen = source.thumbnail.toPNG()
 
-        config.rectangles.res1080.four.forEach((rect, ind)=>{
-          Jimp.read(screen, (err, val)=>{           
-            if (err) ipcRenderer.send('errors', err);
-            
-            val.crop(rect.initial.x, rect.initial.y, rect.final.x-rect.initial.x, rect.final.y-rect.initial.y).resize(rect.final.x-rect.initial.x, rect.final.y-rect.initial.y).contrast(1).greyscale().write(`./img${ind}.png`, (err)=>{
-              if (err) ipcRenderer.send('errors', err);              
-            }) 
-          })
+        Jimp.read(screen, (err, val)=>{   
+          const rect = config.rectangles.res1080
+          if (err) ipcRenderer.send('errors', err);
+          
+          val.crop(rect.initial.x, rect.initial.y, rect.final.x-rect.initial.x, rect.final.y-rect.initial.y).resize(rect.final.x-rect.initial.x, rect.final.y-rect.initial.y).contrast(1).greyscale().write(`./img.png`, (err)=>{
+            if (err) ipcRenderer.send('errors', err);              
+          }) 
+          ipcRenderer.send('scanned', 'bruh')
         })
-        rec(0, config.rectangles.res1080.four.length) 
+        //})
+        
       }
-    })
-  }).catch(err=>{
+  })}).catch(err=>{
     ipcRenderer.send('errors', err)
   })
-
-  
 })
 
 
-async function rec(start, lim){
-  if (start < lim){
+/*async function rec(){
+    ipcRenderer.send('errors', 'bruh')
     await worker.load();
     await worker.loadLanguage('eng');
     await worker.initialize('eng');
     await worker.setParameters({
       tessedit_char_whitelist: 'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm ',
-      preserve_interword_spaces: '1'
+      preserve_interword_spaces: '1',
+      tessedit_pageseg_mode: Tesseract.PSM.SPARSE_TEXT
     })
 
-    worker.recognize(`./img${start}.png`).then(value=>{
-      ipcRenderer.send('orders', value.data.text.toLowerCase())
-      rec(start+1, lim)
-    })
-  }
-}
+     value = await worker.recognize(`./img.png`)
+     ipcRenderer.send('errors', JSON.stringify(value))
+     ipcRenderer.send('errors', value.data.text.toLowerCase())  
+}*/

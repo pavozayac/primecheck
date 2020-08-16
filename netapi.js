@@ -20,7 +20,8 @@ function readAll(){
 function getOne(searchStr){
     const options = {
         includeScore: true,
-        keys: ['item_name']
+        keys: ['item_name'],
+        threshold: 1e-10
     }
     const fuse = new Fuse(readAll(), options)
     return fuse.search(searchStr)[0]

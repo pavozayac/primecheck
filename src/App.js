@@ -11,17 +11,7 @@ class App extends React.Component {
     super(props)
     this.state = {
       msg: "bruh",
-      items: [
-        {item_name: "kek", orders: [{username: "niggollo", price: 2}, {username: "crack_dealer", price: 90}]},
-        {item_name: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", orders: [
-          {username: "niggollo", price: 2}, 
-          {username: "crack_dealer", price: 90},
-          {username: "crack_dealer", price: 2},
-          {username: "crack_dealer", price: 90},
-          {username: "crack_dealer", price: 90},
-          {username: "crack_dealer", price: 90}
-        ]}
-      ],
+      items: [],
       query: '',
       suggestions: [],
       scrollIndicator: false

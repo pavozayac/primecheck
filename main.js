@@ -65,6 +65,24 @@ function createWindow () {
       win.webContents.send('bruh', 'one')
     })    
   })
+
+  ipcMain.on('scanned', (ev, arg)=>{
+    console.log('bruh')
+    let python = require('child_process').spawn('python', ['./program.py', './img.png'])
+    python.stdout.on('data', (data)=>{
+      data.toString('utf-8').split(/\r?\n/).forEach(line=>{
+        let search = netapi.getOne(line)
+        if (search !== undefined && search !== null && search.score < 1e-5){
+          netapi.getOrders(search.item.item_name).then(list=>{
+            console.log(list)
+            win.webContents.send('items', list)
+          }).catch(err=>{
+            console.log(err)
+          })
+        }
+      })
+    })
+  })
   
 
   /*globalShortcut.register('5', ()=>{
@@ -88,6 +106,7 @@ function createWindow () {
   })  
 
   ipcMain.on('orders', (ev, arg)=>{
+    console.log(arg)
     netapi.getOrders(arg).then(list=>{
       console.log(list)
       win.webContents.send('items', list)
