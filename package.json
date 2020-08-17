@@ -3,14 +3,17 @@
   "private": true,
   "version": "0.1.0",
   "description": "",
-  "main": "main.js",
+  "main": "public/electron.js",
   "scripts": {
     "electron": "electron .",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "sass": "node-sass --watch --recursive --output src/css --sourcemap true src/sass"
+    "sass": "node-sass --watch --recursive --output src/css --sourcemap true src/sass",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
   },
   "keywords": [
     "warframe"
@@ -52,5 +55,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "homepage": "./",
+  "build": {
+    "appId": "com.primecheck.app",
+    "productName": "Primecheck"
   }
 }
