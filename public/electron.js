@@ -1,6 +1,12 @@
 const { app, BrowserWindow, screen, globalShortcut, ipcMain } = require('electron')
 const netapi = require('./netapi')
-require('v8-compile-cache')
+const Jimp = require('jimp')
+
+let config
+require('./config.js').getConfig((err,val)=>{
+  if (err ) return ipcRenderer.send('errors', err)
+  config = val
+})
 
 function createWindow () {
   const {sWidth, sHeight} = screen.getPrimaryDisplay().workAreaSize
@@ -36,7 +42,7 @@ function createWindow () {
     show: false,
     fullscreen: true,
     transparent: true,
-    frame: false,
+    frame: true,
     resizable: false,
     alwaysOnTop: true,
     skipTaskbar: true
@@ -54,8 +60,20 @@ function createWindow () {
 
   win.on('show', ()=>{
     globalShortcut.register('4', ()=>{
+      console.log('shown')
       selection.webContents.send('scan', 'any')
+      /*selection.webContents.capturePage().then(img=>{
+        Jimp.read(screen, (err, val)=>{   
+          const rect = config.rectangles.res1080
+          if (err) ipcRenderer.send('errors', err);
+          
+          val.crop(rect.initial.x, rect.initial.y, rect.final.x-rect.initial.x, rect.final.y-rect.initial.y).resize(rect.final.x-rect.initial.x, rect.final.y-rect.initial.y).contrast(1).greyscale().write(`./img.png`, (err)=>{
+            if (err) ipcRenderer.send('errors', err);              
+          }) 
+        })
+      })*/
       win.webContents.send('bruh', 'one')
+      console.log('working')
     })    
   })
 
@@ -68,7 +86,7 @@ function createWindow () {
 
   ipcMain.on('scanned', (ev, arg)=>{
     console.log('bruh')
-    let tess = require('child_process').spawn('./tess/tesseract.exe', ["img.png", "-", "--psm", "11"])
+    let tess = require('child_process').spawn('build/tess/tesseract.exe', ["img.png", "-", "--psm", "11"])
     
     tess.stderr.on('data', data=>console.log(data.toString('utf-8')))
     tess.stdout.on('data', (data)=>{
@@ -101,9 +119,6 @@ function createWindow () {
     })
   }, 'keyup')*/
 
-  win.loadFile('build/index.html')
-  selection.loadFile('selection.html')
-
   ipcMain.on('errors', (ev, arg)=>{
     console.log(`Error: ${arg}`)
   })  
@@ -123,9 +138,36 @@ function createWindow () {
     win.webContents.send('searched', netapi.getMany(arg)) 
   })
 
+  win.loadFile('./index.html')
+  selection.loadFile('./selection.html')
+
   win.setPosition(0, 0, false)
 
   //getAll()
+}
+
+function screenshot(win){
+  desktopCapturer.getSources({ types: ['window', 'screen'], thumbnailSize:{width: 1920, height: 1080} }).then(sources=>{
+    sources.forEach((source) => {
+      const sourceName = source.name.toLowerCase()
+      if (sourceName === 'entire screen' || sourceName === 'screen 1') {
+        let screen = source.thumbnail.toPNG()
+
+        Jimp.read(screen, (err, val)=>{   
+          const rect = config.rectangles.res1080
+          if (err) ipcRenderer.send('errors', err);
+          
+          val.crop(rect.initial.x, rect.initial.y, rect.final.x-rect.initial.x, rect.final.y-rect.initial.y).resize(rect.final.x-rect.initial.x, rect.final.y-rect.initial.y).contrast(1).greyscale().write(`./img.png`, (err)=>{
+            if (err) ipcRenderer.send('errors', err);              
+          }) 
+          ipcRenderer.send('scanned', 'bruh')
+        })
+        //})
+        
+      }
+  })}).catch(err=>{
+    ipcRenderer.send('errors', err)
+  })
 }
 
 app.whenReady().then(createWindow)

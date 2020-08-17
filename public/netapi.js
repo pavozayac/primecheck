@@ -9,12 +9,12 @@ function update(){
         list.push({item_name: element.item_name.toLowerCase(), url_name: element.url_name, id: element.id});
       });
       let data = JSON.stringify(list)
-      fs.writeFileSync('./all_items.json', data)
+      fs.writeFileSync('build/all_items.json', data)
     });
 }
 
 function readAll(){
-    return JSON.parse(fs.readFileSync('./all_items.json'))
+    return JSON.parse(fs.readFileSync('build/all_items.json'))
 }
 
 function getOne(searchStr){

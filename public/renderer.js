@@ -3,7 +3,7 @@ const Jimp = require('jimp')
 //const tess = require('tesseract.js')
 
 let config
-require('./config').getConfig((err,val)=>{
+require('./config.js').getConfig((err,val)=>{
   if (err ) return ipcRenderer.send('errors', err)
   config = val
 })
