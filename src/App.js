@@ -67,6 +67,7 @@ class App extends React.Component {
 
   componentDidMount(){
     electron.ipcRenderer.on('bruh', (ev, arg)=>{
+      console.log(arg)
       this.setState({
         msg: arg
       })

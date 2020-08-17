@@ -40,7 +40,6 @@
     "react-bulma-components": "^3.4.0",
     "react-dom": "^16.13.1",
     "react-scripts": "^3.4.1",
-    "tesseract.js": "^2.1.1",
     "typescript": "^3.9.6",
     "v8-compile-cache": "^2.1.1"
   },

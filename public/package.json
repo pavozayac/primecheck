@@ -1,0 +1,7 @@
+{
+    "name": "primecheck",
+    "description": "App for checking Warframe item prices.",
+    "author": "Pavozayac",
+    "version": "0.1.0",
+    "main": "electron.js"
+}

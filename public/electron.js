@@ -1,12 +1,12 @@
 const { app, BrowserWindow, screen, globalShortcut, ipcMain } = require('electron')
 const netapi = require('./netapi')
-const Jimp = require('jimp')
+const path = require('path')
 
-let config
+/*let config
 require('./config.js').getConfig((err,val)=>{
   if (err ) return ipcRenderer.send('errors', err)
   config = val
-})
+})*/
 
 function createWindow () {
   const {sWidth, sHeight} = screen.getPrimaryDisplay().workAreaSize
@@ -86,9 +86,9 @@ function createWindow () {
 
   ipcMain.on('scanned', (ev, arg)=>{
     console.log('bruh')
-    let tess = require('child_process').spawn('build/tess/tesseract.exe', ["img.png", "-", "--psm", "11"])
+    let tess = require('child_process').spawn('tesseract', ["img.png", "-", "--psm", "11"])
     
-    tess.stderr.on('data', data=>console.log(data.toString('utf-8')))
+    tess.stderr.on('data', data=>win.webContents.send('bruh', data))
     tess.stdout.on('data', (data)=>{
       console.log(data.toString('utf-8'))
       data.toString('utf-8').split(/\r?\n/).forEach(line=>{
@@ -121,6 +121,7 @@ function createWindow () {
 
   ipcMain.on('errors', (ev, arg)=>{
     console.log(`Error: ${arg}`)
+    win.webContents.send('bruh', arg)
   })  
 
   ipcMain.on('orders', (ev, arg)=>{
@@ -135,39 +136,15 @@ function createWindow () {
 
   ipcMain.on('getSearch', (ev, arg)=>{
     console.log(arg)
-    win.webContents.send('searched', netapi.getMany(arg)) 
+    win.webContents.send('searched', netapi.getMany(arg))
   })
 
-  win.loadFile('./index.html')
-  selection.loadFile('./selection.html')
+  win.loadFile(path.join(__dirname, 'index.html'))
+  selection.loadFile(path.join(__dirname, 'selection.html'))
 
   win.setPosition(0, 0, false)
 
   //getAll()
-}
-
-function screenshot(win){
-  desktopCapturer.getSources({ types: ['window', 'screen'], thumbnailSize:{width: 1920, height: 1080} }).then(sources=>{
-    sources.forEach((source) => {
-      const sourceName = source.name.toLowerCase()
-      if (sourceName === 'entire screen' || sourceName === 'screen 1') {
-        let screen = source.thumbnail.toPNG()
-
-        Jimp.read(screen, (err, val)=>{   
-          const rect = config.rectangles.res1080
-          if (err) ipcRenderer.send('errors', err);
-          
-          val.crop(rect.initial.x, rect.initial.y, rect.final.x-rect.initial.x, rect.final.y-rect.initial.y).resize(rect.final.x-rect.initial.x, rect.final.y-rect.initial.y).contrast(1).greyscale().write(`./img.png`, (err)=>{
-            if (err) ipcRenderer.send('errors', err);              
-          }) 
-          ipcRenderer.send('scanned', 'bruh')
-        })
-        //})
-        
-      }
-  })}).catch(err=>{
-    ipcRenderer.send('errors', err)
-  })
 }
 
 app.whenReady().then(createWindow)
